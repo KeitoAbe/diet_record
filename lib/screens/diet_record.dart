@@ -1,8 +1,8 @@
 import 'package:diet_record/models/daily_record.dart';
 import 'package:diet_record/screens/detail_page.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class DietRecord extends StatefulWidget {
   const DietRecord({Key? key, required this.title}) : super(key: key);
@@ -19,7 +19,6 @@ class _DietRecordState extends State<DietRecord> {
   @override
   void initState() {
     super.initState();
-    loadDietRecords();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       initializeDates();
       loadDietRecords();
@@ -27,14 +26,14 @@ class _DietRecordState extends State<DietRecord> {
   }
 
   void initializeDates() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    DateTime? firstDate = prefs.getString('firstDate') != null
-        ? DateTime.parse(prefs.getString('firstDate')!)
+    var box = await Hive.openBox('appData');
+    DateTime? firstDate = box.get('firstDate') != null
+        ? DateTime.parse(box.get('firstDate'))
         : null;
 
     if (firstDate == null) {
       firstDate = DateTime.now();
-      await prefs.setString('firstDate', firstDate.toIso8601String());
+      await box.put('firstDate', firstDate.toIso8601String());
     }
 
     DateTime currentDate = DateTime.now();
@@ -47,18 +46,21 @@ class _DietRecordState extends State<DietRecord> {
   }
 
   void loadDietRecords() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var box = await Hive.openBox('dietRecords');
     setState(() {
       for (DateTime date in dates) {
         String dateKey = DateFormat('yyyyMMdd').format(date);
-        records[dateKey] = DailyRecord(
-          breakfast: prefs.getString('breakfast_$dateKey') ?? '',
-          lunch: prefs.getString('lunch_$dateKey') ?? '',
-          dinner: prefs.getString('dinner_$dateKey') ?? '',
-          snack: prefs.getString('snack_$dateKey') ?? '',
-          weight: prefs.getString('weight_$dateKey') ?? '',
-          bodyFat: prefs.getString('bodyFat_$dateKey') ?? '',
-        );
+        var record = box.get(dateKey);
+        if (record != null) {
+          records[dateKey] = DailyRecord(
+            breakfast: record['breakfast'] ?? '',
+            lunch: record['lunch'] ?? '',
+            dinner: record['dinner'] ?? '',
+            snack: record['snack'] ?? '',
+            weight: record['weight'] ?? '',
+            bodyFat: record['bodyFat'] ?? '',
+          );
+        }
       }
     });
   }

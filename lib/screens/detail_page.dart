@@ -2,8 +2,8 @@ import 'package:diet_record/main.dart';
 import 'package:diet_record/screens/diet_record.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class DetailPage extends StatefulWidget {
   final DateTime date;
@@ -31,27 +31,32 @@ class DetailPageState extends State<DetailPage> {
   }
 
   void loadDetailPageData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var box = await Hive.openBox('dietRecords');
     String dateKey = DateFormat('yyyyMMdd').format(widget.date);
-    breakfastController.text = prefs.getString('breakfast_$dateKey') ?? '';
-    lunchController.text = prefs.getString('lunch_$dateKey') ?? '';
-    dinnerController.text = prefs.getString('dinner_$dateKey') ?? '';
-    snackController.text = prefs.getString('snack_$dateKey') ?? '';
-    weightController.text = prefs.getString('weight_$dateKey') ?? '';
-    bodyFatController.text = prefs.getString('bodyFat_$dateKey') ?? '';
+    var record = box.get(dateKey);
+    if (record != null) {
+      breakfastController.text = record['breakfast'] ?? '';
+      lunchController.text = record['lunch'] ?? '';
+      dinnerController.text = record['dinner'] ?? '';
+      snackController.text = record['snack'] ?? '';
+      weightController.text = record['weight'] ?? '';
+      bodyFatController.text = record['bodyFat'] ?? '';
+    }
   }
 
   Future<void> saveDataAndReload() async {
     final contextBeforeAsync = context;
     Navigator.pop(contextBeforeAsync);
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var box = await Hive.openBox('dietRecords');
     String dateKey = DateFormat('yyyyMMdd').format(widget.date);
-    await prefs.setString('breakfast_$dateKey', breakfastController.text);
-    await prefs.setString('lunch_$dateKey', lunchController.text);
-    await prefs.setString('dinner_$dateKey', dinnerController.text);
-    await prefs.setString('snack_$dateKey', snackController.text);
-    await prefs.setString('weight_$dateKey', weightController.text);
-    await prefs.setString('bodyFat_$dateKey', bodyFatController.text);
+    await box.put(dateKey, {
+      'breakfast': breakfastController.text,
+      'lunch': lunchController.text,
+      'dinner': dinnerController.text,
+      'snack': snackController.text,
+      'weight': weightController.text,
+      'bodyFat': bodyFatController.text,
+    });
 
     Fluttertoast.showToast(
       msg: "保存しました",
