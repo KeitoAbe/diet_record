@@ -53,12 +53,12 @@ class _DietRecordState extends State<DietRecord> {
         var record = box.get(dateKey);
         if (record != null) {
           records[dateKey] = DailyRecord(
-            breakfast: record['breakfast'] ?? '',
-            lunch: record['lunch'] ?? '',
-            dinner: record['dinner'] ?? '',
-            snack: record['snack'] ?? '',
-            weight: record['weight'] ?? '',
-            bodyFat: record['bodyFat'] ?? '',
+            breakfast: record['breakfast'],
+            lunch: record['lunch'],
+            dinner: record['dinner'],
+            snack: record['snack'],
+            weight: record['weight'],
+            bodyFat: record['bodyFat'],
           );
         }
       }

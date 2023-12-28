@@ -35,12 +35,12 @@ class DetailPageState extends State<DetailPage> {
     String dateKey = DateFormat('yyyyMMdd').format(widget.date);
     var record = box.get(dateKey);
     if (record != null) {
-      breakfastController.text = record['breakfast'] ?? '';
-      lunchController.text = record['lunch'] ?? '';
-      dinnerController.text = record['dinner'] ?? '';
-      snackController.text = record['snack'] ?? '';
-      weightController.text = record['weight'] ?? '';
-      bodyFatController.text = record['bodyFat'] ?? '';
+      breakfastController.text = record['breakfast'];
+      lunchController.text = record['lunch'];
+      dinnerController.text = record['dinner'];
+      snackController.text = record['snack'];
+      weightController.text = record['weight'];
+      bodyFatController.text = record['bodyFat'];
     }
   }
 
