@@ -19,6 +19,7 @@ class _DietRecordState extends State<DietRecord> {
   @override
   void initState() {
     super.initState();
+    loadDietRecords();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       initializeDates();
       loadDietRecords();
