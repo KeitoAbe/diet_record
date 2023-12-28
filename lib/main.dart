@@ -67,7 +67,6 @@ class _DietRecordState extends State<DietRecord> {
       initializeDates();
       loadDietRecords();
     });
-    loadDietRecords();
   }
 
   void initializeDates() async {
