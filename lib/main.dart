@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -24,6 +25,14 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale("ja", "JP"),
+      ],
       home: const DietRecord(title: '食事記録'),
       debugShowCheckedModeBanner: false,
     );
@@ -136,12 +145,20 @@ class _DietRecordState extends State<DietRecord> {
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               subtitle: Text(
-                '朝食: ${records[dateKey]?.breakfast.isEmpty ?? true ? '' : records[dateKey]?.breakfast.replaceAll('\n', '\n          ')}\n'
-                '昼食: ${records[dateKey]?.lunch.isEmpty ?? true ? '' : records[dateKey]?.lunch.replaceAll('\n', '\n          ')}\n'
-                '夕食: ${records[dateKey]?.dinner.isEmpty ?? true ? '' : records[dateKey]?.dinner.replaceAll('\n', '\n          ')}\n'
-                '間食: ${records[dateKey]?.snack.isEmpty ?? true ? '' : records[dateKey]?.snack.replaceAll('\n', '\n          ')}\n'
-                '体重: ${records[dateKey]?.weight.isEmpty ?? true ? '' : '${records[dateKey]?.weight}kg'}\n'
-                '体脂肪率: ${records[dateKey]?.bodyFat.isEmpty ?? true ? '' : '${records[dateKey]?.bodyFat}%'}',
+                (records[dateKey]?.breakfast.isNotEmpty ?? false) ||
+                        (records[dateKey]?.lunch.isNotEmpty ?? false) ||
+                        (records[dateKey]?.dinner.isNotEmpty ?? false) ||
+                        (records[dateKey]?.snack.isNotEmpty ?? false) ||
+                        (records[dateKey]?.weight.isNotEmpty ?? false) ||
+                        (records[dateKey]?.bodyFat.isNotEmpty ?? false)
+                    ? '${records[dateKey]?.breakfast.isNotEmpty ?? false ? '朝食: ${records[dateKey]?.breakfast.replaceAll('\n', '\n          ')}\n' : ''}'
+                            '${records[dateKey]?.lunch.isNotEmpty ?? false ? '昼食: ${records[dateKey]?.lunch.replaceAll('\n', '\n          ')}\n' : ''}'
+                            '${records[dateKey]?.dinner.isNotEmpty ?? false ? '夕食: ${records[dateKey]?.dinner.replaceAll('\n', '\n          ')}\n' : ''}'
+                            '${records[dateKey]?.snack.isNotEmpty ?? false ? '間食: ${records[dateKey]?.snack.replaceAll('\n', '\n          ')}\n' : ''}'
+                            '${records[dateKey]?.weight.isNotEmpty ?? false ? '体重: ${records[dateKey]?.weight}kg\n' : ''}'
+                            '${records[dateKey]?.bodyFat.isNotEmpty ?? false ? '体脂肪率: ${records[dateKey]?.bodyFat}%\n' : ''}'
+                        .trim()
+                    : '記録なし',
               ),
               onTap: () => navigateToDetailPage(context, dates[index]),
             ),
