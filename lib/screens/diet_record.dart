@@ -74,6 +74,12 @@ class _DietRecordState extends State<DietRecord> {
     }
   }
 
+  String getRecordText(String field, String label) {
+    return field.isNotEmpty
+        ? '$label: ${field.replaceAll('\n', '\n          ')}\n'
+        : '';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,21 +97,22 @@ class _DietRecordState extends State<DietRecord> {
                 '${dates[index].month}月${dates[index].day}日 (${DateFormat('E', 'ja_JP').format(dates[index])})',
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-              subtitle: Text(
-                (records[dateKey]?.breakfast.isNotEmpty ?? false) ||
-                        (records[dateKey]?.lunch.isNotEmpty ?? false) ||
-                        (records[dateKey]?.dinner.isNotEmpty ?? false) ||
-                        (records[dateKey]?.snack.isNotEmpty ?? false) ||
-                        (records[dateKey]?.weight.isNotEmpty ?? false) ||
-                        (records[dateKey]?.bodyFat.isNotEmpty ?? false)
-                    ? '${records[dateKey]?.breakfast.isNotEmpty ?? false ? '朝食: ${records[dateKey]?.breakfast.replaceAll('\n', '\n          ')}\n' : ''}'
-                            '${records[dateKey]?.lunch.isNotEmpty ?? false ? '昼食: ${records[dateKey]?.lunch.replaceAll('\n', '\n          ')}\n' : ''}'
-                            '${records[dateKey]?.dinner.isNotEmpty ?? false ? '夕食: ${records[dateKey]?.dinner.replaceAll('\n', '\n          ')}\n' : ''}'
-                            '${records[dateKey]?.snack.isNotEmpty ?? false ? '間食: ${records[dateKey]?.snack.replaceAll('\n', '\n          ')}\n' : ''}'
-                            '${records[dateKey]?.weight.isNotEmpty ?? false ? '体重: ${records[dateKey]?.weight}kg\n' : ''}'
-                            '${records[dateKey]?.bodyFat.isNotEmpty ?? false ? '体脂肪率: ${records[dateKey]?.bodyFat}%\n' : ''}'
-                        .trim()
-                    : '記録なし',
+              subtitle: Builder(
+                builder: (BuildContext context) {
+                  final record = records[dateKey];
+                  if (record == null) {
+                    return const Text('記録なし');
+                  }
+
+                  final text = getRecordText(record.breakfast, '朝食') +
+                      getRecordText(record.lunch, '昼食') +
+                      getRecordText(record.dinner, '夕食') +
+                      getRecordText(record.snack, '間食') +
+                      getRecordText(record.weight, '体重') +
+                      getRecordText(record.bodyFat, '体脂肪率');
+
+                  return Text(text.isEmpty ? '記録なし' : text.trim());
+                },
               ),
               onTap: () => navigateToDetailPage(context, dates[index]),
             ),
